@@ -1,18 +1,73 @@
+
 services:
-  elasticsearch:
-    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.17.10'
-    environment:
-      - 'ELASTIC_PASSWORD=secret'
-      - 'discovery.type=single-node'
-      - 'xpack.security.enabled=false'
-    ports:
-      - '9200'
-      - '9300'
+#  elasticsearch:
+#    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.17.10'
+#    environment:
+#      - 'ELASTIC_PASSWORD=secret'
+#      - 'discovery.type=single-node'
+#      - 'xpack.security.enabled=false'
+#    ports:
+#      - '9200'
+#      - '9300'
   mongodb:
     image: 'mongo:latest'
+    container_name: otp-mongodb
+    restart: unless-stopped
     environment:
-      - 'MONGO_INITDB_DATABASE=mydatabase'
-      - 'MONGO_INITDB_ROOT_PASSWORD=secret'
-      - 'MONGO_INITDB_ROOT_USERNAME=root'
+      - 'MONGO_INITDB_DATABASE=communication'
+      - 'MONGO_INITDB_ROOT_PASSWORD=password'
+      - 'MONGO_INITDB_ROOT_USERNAME=admin'
     ports:
-      - '27017'
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/mongodb
+    networks:
+      - otp-network
+
+
+  app:
+    build: . # My project directory
+    container_name: communication-service
+    restart: unless-stopped
+    ports:
+      - "8080:8082"
+#    secrets:
+#      - EMAIL
+#      - APP_PASSWORD
+#      - TWILIO_PHONE_NUMBER
+#      - TWILIO_AUTH_TOKEN
+#      - TWILIO_ACCOUNT_SID
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://admin:password@mongodb:27017/communication?authSource=admin
+#      EMAIL: /run/secrets/EMAIL
+#      APP_PASSWORD: /run/secrets/APP_PASSWORD
+#      TWILIO_PHONE_NUMBER: /run/secrets/TWILIO_PHONE_NUMBER
+#      TWILIO_AUTH_TOKEN: /run/secrets/TWILIO_AUTH_TOKEN
+#      TWILIO_ACCOUNT_SID: /run/secrets/TWILIO_ACCOUNT_SID
+    depends_on:
+      - mongodb
+    networks:
+      - otp-network
+
+
+
+volumes:
+  mongodb_data:
+
+networks:
+  otp-network:
+    driver: bridge
+
+
+
+#secrets:
+#  EMAIL:
+##    external: true
+#  APP_PASSWORD:
+#    external: true
+#  TWILIO_PHONE_NUMBER:
+#    external: true
+#  TWILIO_AUTH_TOKEN:
+#    external: true
+#  TWILIO_ACCOUNT_SID:
+#    external: true
