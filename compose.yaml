@@ -1,14 +1,14 @@
 
 services:
-#  elasticsearch:
-#    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.17.10'
-#    environment:
-#      - 'ELASTIC_PASSWORD=secret'
-#      - 'discovery.type=single-node'
-#      - 'xpack.security.enabled=false'
-#    ports:
-#      - '9200'
-#      - '9300'
+  #  elasticsearch:
+  #    image: 'docker.elastic.co/elasticsearch/elasticsearch:7.17.10'
+  #    environment:
+  #      - 'ELASTIC_PASSWORD=secret'
+  #      - 'discovery.type=single-node'
+  #      - 'xpack.security.enabled=false'
+  #    ports:
+  #      - '9200'
+  #      - '9300'
   mongodb:
     image: 'mongo:latest'
     container_name: otp-mongodb
@@ -24,6 +24,15 @@ services:
     networks:
       - otp-network
 
+  redis:
+    image: redis:latest
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    networks:
+      - otp-network
+    volumes:
+      - redis_data:/data
 
   app:
     build: . # My project directory
@@ -31,21 +40,22 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8082"
-#    secrets:
-#      - EMAIL
-#      - APP_PASSWORD
-#      - TWILIO_PHONE_NUMBER
-#      - TWILIO_AUTH_TOKEN
-#      - TWILIO_ACCOUNT_SID
+    #    secrets:
+    #      - EMAIL
+    #      - APP_PASSWORD
+    #      - TWILIO_PHONE_NUMBER
+    #      - TWILIO_AUTH_TOKEN
+    #      - TWILIO_ACCOUNT_SID
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://admin:password@mongodb:27017/communication?authSource=admin
-#      EMAIL: /run/secrets/EMAIL
-#      APP_PASSWORD: /run/secrets/APP_PASSWORD
-#      TWILIO_PHONE_NUMBER: /run/secrets/TWILIO_PHONE_NUMBER
-#      TWILIO_AUTH_TOKEN: /run/secrets/TWILIO_AUTH_TOKEN
-#      TWILIO_ACCOUNT_SID: /run/secrets/TWILIO_ACCOUNT_SID
+    #      EMAIL: /run/secrets/EMAIL
+    #      APP_PASSWORD: /run/secrets/APP_PASSWORD
+    #      TWILIO_PHONE_NUMBER: /run/secrets/TWILIO_PHONE_NUMBER
+    #      TWILIO_AUTH_TOKEN: /run/secrets/TWILIO_AUTH_TOKEN
+    #      TWILIO_ACCOUNT_SID: /run/secrets/TWILIO_ACCOUNT_SID
     depends_on:
       - mongodb
+      - redis
     networks:
       - otp-network
 
@@ -53,6 +63,7 @@ services:
 
 volumes:
   mongodb_data:
+  redis_data:
 
 networks:
   otp-network:

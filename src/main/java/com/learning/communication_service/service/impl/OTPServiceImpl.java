@@ -1,5 +1,8 @@
 package com.learning.communication_service.service.impl;
 
+import com.common.base.ratelimit.enums.RateLimitType;
+import com.common.base.ratelimit.exception.RateLimitExceededException;
+import com.common.base.ratelimit.service.SecurityService;
 import com.learning.communication_service.dbEntity.OTPVerification;
 import com.learning.communication_service.enums.OTPType;
 import com.learning.communication_service.factory.CommunicationChannelService;
@@ -19,6 +22,9 @@ public class OTPServiceImpl implements OTPService {
 
     @Autowired
     private OTPVerificationRepository otpVerificationRepository;
+
+    @Autowired
+    private SecurityService securityService;
 
     private final Map<String, CommunicationChannelService> factory;
 
@@ -40,16 +46,26 @@ public class OTPServiceImpl implements OTPService {
 
     @Override
     public void sendOTP(String request, OTPType type) {
-        CommunicationChannelService channelService = factory.get(type.toString());
-        if(channelService == null){
-            throw new RuntimeException("Channel doesn't exist");
+        RateLimitType rateLimitType = type == OTPType.EMAIL ? RateLimitType.OTP_EMAIL : RateLimitType.OTP_SMS;
+        if(securityService.isRateLimited(request, rateLimitType)){
+            throw new RateLimitExceededException("Too many OTP requests. Please try again later.");
         }
-        otpVerificationRepository.invalidatePreviousOtps(request, type);
-        String otp = generateOTP();
-        OTPVerification otpVerification = new OTPVerification(request, otp, type, OTP_EXPIRY_MINUTES);
-        otpVerificationRepository.save(otpVerification);
-        // Send OTP
-        channelService.sendOTP(request, otp);
+        try {
+            CommunicationChannelService channelService = factory.get(type.toString());
+            if (channelService == null) {
+                throw new RuntimeException("Channel doesn't exist");
+            }
+            otpVerificationRepository.invalidatePreviousOtps(request, type);
+            String otp = generateOTP();
+            OTPVerification otpVerification = new OTPVerification(request, otp, type, OTP_EXPIRY_MINUTES);
+            otpVerificationRepository.save(otpVerification);
+            // Send OTP
+            channelService.sendOTP(request, otp);
+            securityService.recordAttempt(request, rateLimitType, true);
+        }catch (Exception e){
+            securityService.recordAttempt(request, rateLimitType, false);
+            throw e;
+        }
     }
 
     @Override

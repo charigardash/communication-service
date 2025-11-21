@@ -1,5 +1,7 @@
 package com.learning.communication_service.controller;
 
+import com.common.base.ratelimit.exception.RateLimitExceededException;
+import com.learning.communication_service.responseEntity.OTPResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,5 +22,11 @@ public class GlobalExceptionHandler {
         response.put("status", 500);
         response.put("timestamp", Instant.now());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public ResponseEntity<OTPResponse> handleRateLimitExceeded(RateLimitExceededException ex) {
+        OTPResponse response = new OTPResponse(false, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(response);
     }
 }
