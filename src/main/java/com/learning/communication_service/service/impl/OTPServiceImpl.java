@@ -2,12 +2,14 @@ package com.learning.communication_service.service.impl;
 
 import com.common.base.ratelimit.enums.RateLimitType;
 import com.common.base.ratelimit.exception.RateLimitExceededException;
+import com.common.base.ratelimit.service.RateLimitingService;
 import com.common.base.ratelimit.service.SecurityService;
 import com.learning.communication_service.dbEntity.OTPVerification;
 import com.learning.communication_service.enums.OTPType;
 import com.learning.communication_service.factory.CommunicationChannelService;
 import com.learning.communication_service.repository.OTPVerificationRepository;
 import com.learning.communication_service.service.OTPService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +19,20 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
+import static com.common.base.ratelimit.enums.RateLimitType.OTP_SMS;
+
 @Service
+@Slf4j
 public class OTPServiceImpl implements OTPService {
 
     @Autowired
     private OTPVerificationRepository otpVerificationRepository;
 
     @Autowired
-    private SecurityService securityService;
+    private SecurityService securityService;//Sliding window
+
+    @Autowired
+    private RateLimitingService rateLimitingService;
 
     private final Map<String, CommunicationChannelService> factory;
 
@@ -46,8 +54,9 @@ public class OTPServiceImpl implements OTPService {
 
     @Override
     public void sendOTP(String request, OTPType type) {
-        RateLimitType rateLimitType = type == OTPType.EMAIL ? RateLimitType.OTP_EMAIL : RateLimitType.OTP_SMS;
-        if(securityService.isRateLimited(request, rateLimitType)){
+        String rateLimitType = type == OTPType.EMAIL ? RateLimitingService.RATE_LIMIT_OTP_EMAIL : RateLimitingService.RATE_LIMIT_OTP_SMS;
+        RateLimitingService.RateLimitResult result = rateLimitingService.checkCompositeRateLimit(request, rateLimitType);
+        if(result.isRateLimited()){
             throw new RateLimitExceededException("Too many OTP requests. Please try again later.");
         }
         try {
@@ -61,9 +70,12 @@ public class OTPServiceImpl implements OTPService {
             otpVerificationRepository.save(otpVerification);
             // Send OTP
             channelService.sendOTP(request, otp);
-            securityService.recordAttempt(request, rateLimitType, true);
+            log.info("OTP sent successfully to: {}. Remaining requests: {}",
+                    request, result.getRemainingRequests());
+//            securityService.recordAttempt(request, rateLimitType, true);
         }catch (Exception e){
-            securityService.recordAttempt(request, rateLimitType, false);
+            log.error("Failed to send OTP to: {}", request, e);
+//            securityService.recordAttempt(request, rateLimitType, false);
             throw e;
         }
     }
