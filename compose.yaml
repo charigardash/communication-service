@@ -21,18 +21,32 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/mongodb
-    networks:
-      - otp-network
+#    networks:
+#      - otp-network
 
   redis:
     image: redis:latest
     container_name: redis-cache
     ports:
       - "6379:6379"
-    networks:
-      - otp-network
+#    networks:
+#      - otp-network
     volumes:
       - redis_data:/data
+
+  # 2. The Base Service (which needs Redis)
+#  base_service:
+#    build:
+#      context: ./../base
+#    container_name: base_service_container
+#    # Ensure this service uses 'redis:6379' for its connection string
+#    environment:
+#      # Use the correct prefix for your framework (e.g., Spring Boot 3+)
+#      - spring.data.redis.host=redis
+#      - spring.data.redis.port=6379
+#    # Add dependency so base service waits for redis to be ready (optional, but good practice)
+#    depends_on:
+#      - redis
 
   app:
     build: . # My project directory
@@ -48,6 +62,8 @@ services:
     #      - TWILIO_ACCOUNT_SID
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://admin:password@mongodb:27017/communication?authSource=admin
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
     #      EMAIL: /run/secrets/EMAIL
     #      APP_PASSWORD: /run/secrets/APP_PASSWORD
     #      TWILIO_PHONE_NUMBER: /run/secrets/TWILIO_PHONE_NUMBER
@@ -56,8 +72,8 @@ services:
     depends_on:
       - mongodb
       - redis
-    networks:
-      - otp-network
+#    networks:
+#      - otp-network
 
 
 
@@ -65,9 +81,9 @@ volumes:
   mongodb_data:
   redis_data:
 
-networks:
-  otp-network:
-    driver: bridge
+#networks:
+#  otp-network:
+#    driver: bridge
 
 
 
