@@ -88,12 +88,12 @@
             <artifactId>jedis</artifactId>
         </dependency>
 
-        <!-- Bucket4j for rate limiting -->
-        <dependency>
-            <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j-core</artifactId>
-            <version>8.1.0</version>
-        </dependency>
+<!--        &lt;!&ndash; Bucket4j for rate limiting &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.bucket4j</groupId>-->
+<!--            <artifactId>bucket4j-core</artifactId>-->
+<!--            <version>8.1.0</version>-->
+<!--        </dependency>-->
         <!-- Twilio for SMS (or use any other SMS provider) -->
         <dependency>
             <groupId>com.twilio.sdk</groupId>
@@ -101,12 +101,12 @@
             <version>9.0.0</version>
         </dependency>
 
-        <!-- Bucket4j for Redis -->
-        <dependency>
-            <groupId>com.bucket4j</groupId>
-            <artifactId>bucket4j-redis</artifactId>
-            <version>8.1.0</version>
-        </dependency>
+<!--        &lt;!&ndash; Bucket4j for Redis &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>com.bucket4j</groupId>-->
+<!--            <artifactId>bucket4j-redis</artifactId>-->
+<!--            <version>8.1.0</version>-->
+<!--        </dependency>-->
 
         <!-- Lettuce for Redis connection pooling -->
         <dependency>
