@@ -66,6 +66,30 @@
             <artifactId>spring-grpc-server-web-spring-boot-starter</artifactId>
         </dependency>
 
+        <!-- WebFlux for async webhook calls -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
+        <!-- Retry support -->
+        <dependency>
+            <groupId>org.springframework.retry</groupId>
+            <artifactId>spring-retry</artifactId>
+        </dependency>
+
+        <!-- Apache HTTP Client for webhook calls -->
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+        </dependency>
+
+        <!-- JSON processing -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-docker-compose</artifactId>
@@ -123,6 +147,12 @@
             <groupId>com.common</groupId>
             <artifactId>base</artifactId>
             <version>0.0.1-SNAPSHOT</version> <!-- Use the exact version you deployed -->
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.swagger.core.v3/swagger-annotations -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.2.40</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.grpc</groupId>
@@ -195,15 +225,15 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>charigardash-library-repo</id>
-            <url>http://localhost:8081/repository/charigardash-library/</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy> <!-- Ensures you get latest snapshots -->
-            </snapshots>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>charigardash-library-repo</id>-->
+<!--            <url>http://localhost:8081/repository/charigardash-library/</url>-->
+<!--            <snapshots>-->
+<!--                <enabled>true</enabled>-->
+<!--                <updatePolicy>always</updatePolicy> &lt;!&ndash; Ensures you get latest snapshots &ndash;&gt;-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
 </project>
