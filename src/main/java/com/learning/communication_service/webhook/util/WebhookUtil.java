@@ -1,8 +1,10 @@
 package com.learning.communication_service.webhook.util;
 
 import com.learning.communication_service.dbEntity.webhook.Webhook;
+import com.learning.communication_service.dbEntity.webhook.WebhookDelivery;
 import com.learning.communication_service.webhook.dtos.request.WebhookRequest;
 import com.learning.communication_service.webhook.dtos.response.PaginatedResponse;
+import com.learning.communication_service.webhook.dtos.response.WebhookDeliveryResponse;
 import com.learning.communication_service.webhook.dtos.response.WebhookResponse;
 import org.springframework.data.domain.Page;
 
@@ -67,7 +69,7 @@ public class WebhookUtil {
         return createPaginatedResponse(page, content);
     }
 
-    private static <T> PaginatedResponse<T> createPaginatedResponse(Page<?> page, List<T> content) {
+    public static <T> PaginatedResponse<T> createPaginatedResponse(Page<?> page, List<T> content) {
         PaginatedResponse<T> response = new PaginatedResponse<>();
         response.setContent(content);
         response.setPage(page.getNumber());
@@ -77,5 +79,22 @@ public class WebhookUtil {
         response.setFirst(page.isFirst());
         response.setLast(page.isLast());
         return response;
+    }
+
+    public static WebhookDeliveryResponse convertToDeliveryResponse(WebhookDelivery delivery){
+        return WebhookDeliveryResponse.builder()
+                .id(delivery.getId())
+                .webhookId(delivery.getWebhookId())
+                .eventId(delivery.getEventId())
+                .targetUrl(delivery.getTargetUrl())
+                .status(delivery.getStatus().toString())
+                .attemptCount(delivery.getAttemptCount())
+                .responseCode(delivery.getResponseCode())
+                .errorMessage(delivery.getErrorMessage())
+                .createdAt(delivery.getCreatedAt())
+                .sentAt(delivery.getSentAt())
+                .nextRetryAt(delivery.getNextRetryAt())
+                .processingTimeMs(delivery.getProcessingTimeMs())
+                .build();
     }
 }

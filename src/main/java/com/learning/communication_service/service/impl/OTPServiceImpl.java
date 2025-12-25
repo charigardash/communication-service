@@ -1,6 +1,5 @@
 package com.learning.communication_service.service.impl;
 
-import com.common.base.ratelimit.enums.RateLimitType;
 import com.common.base.ratelimit.exception.RateLimitExceededException;
 import com.common.base.ratelimit.service.RateLimitingService;
 import com.common.base.ratelimit.service.SecurityService;
@@ -9,6 +8,7 @@ import com.learning.communication_service.enums.OTPType;
 import com.learning.communication_service.factory.CommunicationChannelService;
 import com.learning.communication_service.repository.OTPVerificationRepository;
 import com.learning.communication_service.service.OTPService;
+import com.learning.communication_service.service.OTPWebhookIntegrationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 
-import static com.common.base.ratelimit.enums.RateLimitType.OTP_SMS;
 
 @Service
 @Slf4j
@@ -33,6 +32,9 @@ public class OTPServiceImpl implements OTPService {
 
     @Autowired
     private RateLimitingService rateLimitingService;
+
+    @Autowired
+    private OTPWebhookIntegrationService webhookIntegrationService;
 
     private final Map<String, CommunicationChannelService> factory;
 
@@ -53,10 +55,11 @@ public class OTPServiceImpl implements OTPService {
     }
 
     @Override
-    public void sendOTP(String request, OTPType type) {
+    public void sendOTP(String request, OTPType type, String clientIp) {
         String rateLimitType = type == OTPType.EMAIL ? RateLimitingService.RATE_LIMIT_OTP_EMAIL : RateLimitingService.RATE_LIMIT_OTP_SMS;
         RateLimitingService.RateLimitResult result = rateLimitingService.checkCompositeRateLimit(request, rateLimitType);
         if(result.isRateLimited()){
+            webhookIntegrationService.triggerRateLimitExceedEvent(rateLimitType, clientIp, "/communication/auth/otp/end", 5);
             throw new RateLimitExceededException("Too many OTP requests. Please try again later.");
         }
         try {
@@ -72,6 +75,7 @@ public class OTPServiceImpl implements OTPService {
             channelService.sendOTP(request, otp);
             log.info("OTP sent successfully to: {}. Remaining requests: {}",
                     request, result.getRemainingRequests());
+            webhookIntegrationService.triggerOtpSentEvent(rateLimitType, type, otp, maskedOtp(otp));
 //            securityService.recordAttempt(request, rateLimitType, true);
         }catch (Exception e){
             log.error("Failed to send OTP to: {}", request, e);
@@ -80,19 +84,31 @@ public class OTPServiceImpl implements OTPService {
         }
     }
 
+    private String maskedOtp(String otp) {
+        if(otp == null || otp.length() < 4) return "****";
+        return otp.substring(0, 2)+"***"+otp.substring(otp.length()-1);
+    }
+
     @Override
     public boolean verifyOTP(String identifier, String otp, OTPType type) {
         Optional<OTPVerification> otpVerification = otpVerificationRepository.findByIdentifierAndOtpAndTypeAndUsedFalse(identifier, otp, type);
 
+        boolean isValid = false;
+        String reason = "Invalid OTP";
         if(otpVerification.isPresent()){
             OTPVerification verification = otpVerification.get();
-            if(verification.isExpired())return false;
+            if(verification.isExpired()) {
+                reason = "Otp expired";
+            }
             // Mark OTP as used
             verification.setUsed(true);
             verification.setVerifiedAt(Instant.now());
             otpVerificationRepository.save(verification);
+            isValid = true;
+            reason = "OTP verified successfully";
         }
-        return false;
+        webhookIntegrationService.triggerOtpVerifiedEvent(identifier, type, isValid, reason);
+        return isValid;
     }
 
     @Override
