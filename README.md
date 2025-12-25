@@ -146,6 +146,3 @@ Configuration is driven by environment variables or configuration files. Typical
 
 See the project's configuration files for the full list and defaults.
 
----
-
-If you'd like, I can also add a short badge header, a CONTRIBUTING.md template, or wire up a basic OpenAPI file. Please tell me what you'd prefer next.
