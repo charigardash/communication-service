@@ -37,7 +37,7 @@ public class WebhookDelivery {
 
     private int attemptCount = 0;
 
-    private int maxAttempt;
+    private int maxAttempts;
 
     @Field("response_code")
     private Integer responseCode;
@@ -75,9 +75,11 @@ public class WebhookDelivery {
         this.targetUrl = targetUrl;
     }
 
+    public void incrementAttemptCount() { this.attemptCount++; }
+
     // Helper methods
     public boolean canRetry(){
-        return this.attemptCount < this.maxAttempt &&
+        return this.attemptCount < this.maxAttempts &&
                 this.status != WebhookStatus.SENT;
     }
 

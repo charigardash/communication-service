@@ -2,6 +2,8 @@ package com.learning.communication_service.webhook.dtos.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.learning.communication_service.webhook.enums.WebhookEventType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +11,8 @@ import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Data
+@Builder
+@AllArgsConstructor
 public class WebhookDeliveryResponse {
 
     private String id;
