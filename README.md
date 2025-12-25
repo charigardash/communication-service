@@ -1,68 +1,67 @@
-🔐 OTP Authentication & Communication Service
-<div align="center">
+# 🔐 OTP Authentication & Communication Service
 
-Secure OTP Delivery · Real-time Notifications · Enterprise Webhooks
+Secure OTP delivery, real-time notifications, and enterprise webhooks — a production-ready, scalable authentication and communication system.
 
-A production-ready, scalable authentication system with comprehensive communication features
+## Table of contents
 
-Features • Quick Start • Architecture • API Reference
+- Overview
+- Features
+- Architecture
+- Quick start
+- Configuration
+- API reference
+- Contributing
+- License
 
-</div>
+## Overview
 
-🚀 Overview
-Welcome to the OTP Authentication & Communication Service – your all-in-one solution for secure user authentication and intelligent communication workflows. This isn't just another OTP service; it's a complete ecosystem for managing user verification, real-time notifications, and system integrations.
+This service provides one-time password (OTP) authentication and a flexible communication platform for delivering OTPs and security events to end users and external systems. It is designed for production use with horizontal scalability, observability, and robust security controls.
 
-✨ Features
-🔐 Core Authentication
-Dual-Channel OTP Delivery: Send OTPs via Email and SMS simultaneously or independently
+## Features
 
-Smart Expiration: Configurable OTP lifespan with automatic cleanup
+### Core authentication
+- Dual-channel OTP delivery: Email and SMS, simultaneously or independently.
+- Configurable expiration and single-use enforcement for OTPs.
+- Verification tracking and audit logs for all OTP attempts.
 
-One-Time Use: Each OTP can only be verified once
+### Advanced security
+- Intelligent rate limiting (Token Bucket, Sliding Window, Fixed Window strategies).
+- Redis-backed distributed limits and caching.
+- Circuit breaker patterns for external integrations.
+- HMAC-signed webhooks for secure event delivery.
 
-Verification Tracking: Complete audit trail of all OTP attempts
+### Webhook integration
+- Event-driven architecture with multiple OTP and security event types.
+- Configurable retry strategies (exponential, linear, Fibonacci backoff).
+- At-least-once delivery semantics with delivery tracking and dead-letter handling.
+- Real-time monitoring of webhook throughput and health.
 
+### Observability
+- Delivery analytics (success rates, latency, failure analysis).
+- Structured logging and tracing for debugging and compliance.
+- Health endpoints and metrics for integration with monitoring systems.
 
-🛡️ Advanced Security
-Intelligent Rate Limiting: Multi-strategy protection (Token Bucket, Sliding Window, Fixed Window)
+### Scalability & reliability
+- Asynchronous, non-blocking processing for delivery pipelines.
+- Stateless service design to enable horizontal scaling.
+- Connection pooling and batch processing for efficiency.
 
-Redis-Backed Protection: Distributed rate limiting that scales horizontally
+## Architecture
 
-Circuit Breaker Pattern: Automatic failure detection and recovery
+High-level components:
 
-HMAC-Signed Webhooks: Secure payload delivery with signature verification
+- API Gateway / Load Balancer
+- OTP Authentication Service (REST API)
+  - OTP generation & validation
+  - Rate limiting & security
+  - Webhook management
+- Business logic layer (OTP, Rate Limiter, Webhook, Security)
+- Async processing layer (email, SMS, webhook delivery queues)
+- Persistence & infrastructure: MongoDB, Redis, external Email/SMS providers
 
-🌐 Webhook Integration
-Event-Driven Architecture: Subscribe to 12+ different OTP and security events
+The following ASCII diagram illustrates the high-level flow:
 
-Smart Retry Logic: Configurable retry strategies (Exponential, Linear, Fibonacci backoff)
-
-Delivery Guarantees: At-least-once delivery with comprehensive tracking
-
-Real-time Monitoring: Live dashboard of webhook performance and health
-
-📊 Observability
-Delivery Analytics: Success rates, latency metrics, failure analysis
-
-Real-time Dashboard: Monitor OTP delivery and webhook performance
-
-Comprehensive Logging: Structured logs for debugging and compliance
-
-Health Checks: Built-in monitoring endpoints for all components
-
-
-🚀 Scalability
-Async Processing: Non-blocking OTP delivery and webhook execution
-
-Horizontal Scaling: Stateless design for easy scaling
-
-Connection Pooling: Optimized database and HTTP connections
-
-Batch Operations: Efficient bulk processing capabilities
-
-
-🏗️ Architecture
-High-Level Design
+```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Client Applications                       │
 │  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
@@ -115,15 +114,55 @@ High-Level Design
 │   hooks │ │  Sessions│ │ • Webhook   │
 │         │ │         │ │   Receivers │
 └─────────┘ └─────────┘ └─────────────┘
+```
 
-Data Flow: Sending an OTP
+## Quick start
 
-Component Architecture
-Component	Responsibility	Technology
-OTP Service	Generate, send, verify OTPs	Spring Boot, MongoDB
-Rate Limiter	Prevent abuse and DDoS attacks	Redis, Bucket4j
-Webhook Engine	Deliver real-time events to external systems	WebFlux, Async Processing
-Email Service	Send OTP emails with templates	JavaMail, Thymeleaf
-SMS Service	Deliver OTP via SMS gateways	Twilio, Plivo
-Security Layer	HMAC signing, request validation	Spring Security, JWT
-Monitoring	Health checks, metrics, logging	Micrometer, Actuator
+Prerequisites:
+- Java 11+ (or the Java version your build uses)
+- Maven or Gradle
+- MongoDB and Redis running (local or remote)
+
+Run locally (Maven example):
+
+```bash
+# set required environment variables (see Configuration below)
+export SPRING_PROFILES_ACTIVE=local
+mvn clean package
+mvn spring-boot:run
+```
+
+Or with Gradle:
+
+```bash
+./gradlew bootRun
+```
+
+## Configuration
+
+Configuration is driven by environment variables or configuration files. Typical vars:
+
+- DATABASE_URL / MONGODB_URI
+- REDIS_URL
+- SMTP_HOST, SMTP_USERNAME, SMTP_PASSWORD
+- SMS_GATEWAY_API_KEY
+- WEBHOOK_SIGNING_SECRET
+- OTP_EXPIRATION_SECONDS
+
+See the project's configuration files for the full list and defaults.
+
+## API reference
+
+Detailed API documentation and OpenAPI/Swagger specs are available in the docs folder (or the running service under /swagger-ui if provided). If you need a specific endpoint document, open an issue requesting the exact API reference.
+
+## Contributing
+
+Contributions are welcome. Please open an issue to discuss larger changes before submitting a pull request. Include tests and update documentation for any behavior changes.
+
+## License
+
+Specify your license here (e.g., MIT, Apache-2.0) or include a LICENSE file in the repository.
+
+---
+
+If you'd like, I can also add a short badge header, a CONTRIBUTING.md template, or wire up a basic OpenAPI file. Please tell me what you'd prefer next.
