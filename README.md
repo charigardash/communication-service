@@ -120,7 +120,7 @@ The following ASCII diagram illustrates the high-level flow:
 
 Prerequisites:
 - Java 11+ (or the Java version your build uses)
-- Maven or Gradle
+- Maven
 - MongoDB and Redis running (local or remote)
 
 Run locally (Maven example):
@@ -132,11 +132,6 @@ mvn clean package
 mvn spring-boot:run
 ```
 
-Or with Gradle:
-
-```bash
-./gradlew bootRun
-```
 
 ## Configuration
 
@@ -150,18 +145,6 @@ Configuration is driven by environment variables or configuration files. Typical
 - OTP_EXPIRATION_SECONDS
 
 See the project's configuration files for the full list and defaults.
-
-## API reference
-
-Detailed API documentation and OpenAPI/Swagger specs are available in the docs folder (or the running service under /swagger-ui if provided). If you need a specific endpoint document, open an issue requesting the exact API reference.
-
-## Contributing
-
-Contributions are welcome. Please open an issue to discuss larger changes before submitting a pull request. Include tests and update documentation for any behavior changes.
-
-## License
-
-Specify your license here (e.g., MIT, Apache-2.0) or include a LICENSE file in the repository.
 
 ---
 
