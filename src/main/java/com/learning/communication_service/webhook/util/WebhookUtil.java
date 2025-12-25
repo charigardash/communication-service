@@ -23,7 +23,7 @@ public class WebhookUtil {
         webhook.setTargetUrl(webhookRequest.getTargetUrl());
         webhook.setSubscribedEvents(webhookRequest.getSubscribedEvents());
         webhook.setSigningSecret(webhookRequest.getSigningSecret() != null?
-                webhook.getSigningSecret() : generateRandomSecret());
+                webhookRequest.getSigningSecret() : generateRandomSecret());
         webhook.setCustomHeaders(webhookRequest.getCustomHeaders());
         webhook.setActive(webhookRequest.isActive());
         webhook.setTimeoutSeconds(webhookRequest.getTimeoutSeconds());
