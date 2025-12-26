@@ -116,6 +116,9 @@ The following ASCII diagram illustrates the high-level flow:
 └─────────┘ └─────────┘ └─────────────┘
 ```
 
+<img width="6466" height="3534" alt="Data Flow-communcication-service" src="https://github.com/user-attachments/assets/2d038041-fcb5-49a8-a203-e5a1f58fa29b" />
+
+
 ## Quick start
 
 Prerequisites:
